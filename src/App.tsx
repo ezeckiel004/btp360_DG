@@ -4,13 +4,13 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import {
-  LayoutDashboard,
-  CheckCircle2,
-  FileText,
-  User,
-  Bell,
-  AlertTriangle,
+import { 
+  LayoutDashboard, 
+  CheckCircle2, 
+  FileText, 
+  User, 
+  Bell, 
+  AlertTriangle, 
   ArrowRight,
   Download,
   History,
@@ -67,8 +67,12 @@ const MOCK_REPORTS: Report[] = [
 ];
 
 const MOCK_STOCK: StockInfo[] = [
-  { material: 'Ciment CPJ 45', site: 'Site A', quantity: '5 sacs', status: 'critical' },
-  { material: 'Fer 12', site: 'Site B', quantity: '10 barres', status: 'critical' },
+  { id: 's1', material: 'Ciment CPJ 45', category: 'Matériaux', quantity: 5, unit: 'sacs', site: 'Site A', status: 'critical' },
+  { id: 's2', material: 'Fer 12', category: 'Ferraille', quantity: 10, unit: 'barres', site: 'Site B', status: 'critical' },
+  { id: 's3', material: 'Sable Fin', category: 'Agrégats', quantity: 2, unit: 'm3', site: 'Site A', status: 'low' },
+  { id: 's4', material: 'Gravier 15/25', category: 'Agrégats', quantity: 15, unit: 'm3', site: 'Site C', status: 'normal' },
+  { id: 's5', material: 'Peinture Blanche', category: 'Finition', quantity: 45, unit: 'L', site: 'Site B', status: 'normal' },
+  { id: 's6', material: 'Tuyau PVC 100', category: 'Plomberie', quantity: 12, unit: 'unités', site: 'Site A', status: 'normal' },
 ];
 
 export default function App() {
@@ -85,21 +89,21 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex justify-center">
       {/* Mobile Frame Container */}
-      <div className="w-full max-w-md bg-white min-h-screen shadow-2xl relative flex flex-col border-x border-slate-200">
-
+      <div className="w-full max-w-md bg-white min-h-screen shadow-2xl relative flex flex-col overflow-hidden border-x border-slate-200">
+        
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto pb-24">
           <AnimatePresence mode="wait">
             {currentPage === Page.Dashboard && (
-              <DashboardPage
-                pendingCount={pendingPaymentsCount}
+              <DashboardPage 
+                pendingCount={pendingPaymentsCount} 
                 onGoToApprovals={() => setCurrentPage(Page.Approvals)}
               />
             )}
             {currentPage === Page.Approvals && (
-              <ApprovalsPage
-                payments={payments}
-                onApprove={approvePayment}
+              <ApprovalsPage 
+                payments={payments} 
+                onApprove={approvePayment} 
               />
             )}
             {currentPage === Page.Reports && <ReportsPage />}
@@ -108,28 +112,28 @@ export default function App() {
         </main>
 
         {/* Bottom Navigation Bar */}
-        <nav className="sticky bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-md border-t border-slate-100 flex items-center justify-around px-4 z-50 shrink-0">
-          <NavButton
-            active={currentPage === Page.Dashboard}
+        <nav className="absolute bottom-0 left-0 right-0 h-20 bg-white/80 backdrop-blur-md border-t border-slate-100 flex items-center justify-around px-4 z-50">
+          <NavButton 
+            active={currentPage === Page.Dashboard} 
             onClick={() => setCurrentPage(Page.Dashboard)}
             icon={<LayoutDashboard size={24} />}
             label="Accueil"
           />
-          <NavButton
-            active={currentPage === Page.Approvals}
+          <NavButton 
+            active={currentPage === Page.Approvals} 
             onClick={() => setCurrentPage(Page.Approvals)}
             icon={<CheckCircle2 size={24} />}
             label="Validation"
             badge={pendingPaymentsCount > 0 ? pendingPaymentsCount : undefined}
           />
-          <NavButton
-            active={currentPage === Page.Reports}
+          <NavButton 
+            active={currentPage === Page.Reports} 
             onClick={() => setCurrentPage(Page.Reports)}
             icon={<FileText size={24} />}
             label="Rapports"
           />
-          <NavButton
-            active={currentPage === Page.Profile}
+          <NavButton 
+            active={currentPage === Page.Profile} 
             onClick={() => setCurrentPage(Page.Profile)}
             icon={<User size={24} />}
             label="Compte"
@@ -144,7 +148,7 @@ export default function App() {
 
 function DashboardPage({ pendingCount, onGoToApprovals }: { pendingCount: number, onGoToApprovals: () => void }) {
   return (
-    <motion.div
+    <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
@@ -167,7 +171,7 @@ function DashboardPage({ pendingCount, onGoToApprovals }: { pendingCount: number
 
       {/* Quick View Stats */}
       <section className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
-        <motion.div
+        <motion.div 
           onClick={onGoToApprovals}
           whileTap={{ scale: 0.98 }}
           className="bg-indigo-600 p-5 rounded-[32px] text-white shadow-lg shadow-indigo-100 cursor-pointer min-w-[240px] shrink-0"
@@ -213,25 +217,27 @@ function DashboardPage({ pendingCount, onGoToApprovals }: { pendingCount: number
                   <h4 className="text-sm font-bold text-slate-900">{project.name}</h4>
                   <p className="text-[10px] text-slate-400 uppercase font-bold tracking-tight">{project.location}</p>
                 </div>
-                <div className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${project.status === 'ahead' ? 'bg-emerald-50 text-emerald-600' :
-                    project.status === 'behind' ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-500'
-                  }`}>
+                <div className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${
+                  project.status === 'ahead' ? 'bg-emerald-50 text-emerald-600' : 
+                  project.status === 'behind' ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-500'
+                }`}>
                   {project.status === 'ahead' ? '+ Avance' : project.status === 'behind' ? '- Retard' : 'Normal'}
                 </div>
               </div>
-
+              
               <div className="space-y-1.5">
                 <div className="flex justify-between text-[10px] font-bold uppercase text-slate-400">
                   <span>Progression</span>
                   <span className="text-slate-900">{project.progress}%</span>
                 </div>
                 <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <motion.div
+                  <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${project.progress}%` }}
-                    className={`h-full rounded-full ${project.budgetStatus === 'alert' ? 'bg-rose-500' :
-                        project.budgetStatus === 'warning' ? 'bg-amber-500' : 'bg-emerald-500'
-                      }`}
+                    className={`h-full rounded-full ${
+                      project.budgetStatus === 'alert' ? 'bg-rose-500' : 
+                      project.budgetStatus === 'warning' ? 'bg-amber-500' : 'bg-emerald-500'
+                    }`}
                   />
                 </div>
               </div>
@@ -279,7 +285,7 @@ function ApprovalsPage({ payments, onApprove }: { payments: PaymentRequest[], on
   const pending = payments.filter(p => p.status === 'pending');
 
   return (
-    <motion.div
+    <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -291,7 +297,7 @@ function ApprovalsPage({ payments, onApprove }: { payments: PaymentRequest[], on
       </header>
 
       {selected ? (
-        <motion.div
+        <motion.div 
           initial={{ x: 50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           className="space-y-6"
@@ -305,7 +311,7 @@ function ApprovalsPage({ payments, onApprove }: { payments: PaymentRequest[], on
               <p className="text-slate-400 text-xs uppercase font-bold tracking-widest">Montant à débloquer</p>
               <h2 className="text-4xl font-bold font-mono">{selected.montant.toLocaleString()} <span className="text-xl">XOF</span></h2>
             </div>
-
+            
             <div className="h-px bg-white/10" />
 
             <div className="grid grid-cols-2 gap-6">
@@ -334,7 +340,7 @@ function ApprovalsPage({ payments, onApprove }: { payments: PaymentRequest[], on
             </p>
           </div>
 
-          <button
+          <button 
             onClick={() => {
               onApprove(selected.id);
               setSelected(null);
@@ -366,8 +372,14 @@ function ApprovalsPage({ payments, onApprove }: { payments: PaymentRequest[], on
 }
 
 function ReportsPage() {
+  const [showInventory, setShowInventory] = useState(false);
+
+  if (showInventory) {
+    return <InventoryView onBack={() => setShowInventory(false)} />;
+  }
+
   return (
-    <motion.div
+    <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -381,9 +393,9 @@ function ReportsPage() {
       {/* Quick Search */}
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-        <input
-          type="text"
-          placeholder="Rechercher un rapport..."
+        <input 
+          type="text" 
+          placeholder="Rechercher un rapport..." 
           className="w-full bg-slate-100 border-none rounded-2xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none"
         />
       </div>
@@ -427,33 +439,133 @@ function ReportsPage() {
 
       {/* Stock Summary */}
       <section className="space-y-4">
-        <h3 className="font-bold text-slate-900 px-1">Vue Stock Simplifiée</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {MOCK_STOCK.map((s, idx) => (
-            <div key={idx} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-2">
-              <div className="flex justify-between items-start">
-                <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full uppercase">Critique</span>
-                <Package size={14} className="text-slate-300" />
+         <div className="flex justify-between items-center px-1">
+            <h3 className="font-bold text-slate-900">Aperçu des Stocks</h3>
+            <button 
+              onClick={() => setShowInventory(true)}
+              className="text-indigo-600 text-[10px] font-bold uppercase tracking-widest"
+            >
+              Voir Tout
+            </button>
+         </div>
+         <div className="grid grid-cols-2 gap-3">
+            {MOCK_STOCK.slice(0, 2).map((s) => (
+              <div key={s.id} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                 <div className="flex justify-between items-start">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                        s.status === 'critical' ? 'bg-red-50 text-red-500' : 'bg-amber-50 text-amber-500'
+                    }`}>
+                      {s.status === 'critical' ? 'Critique' : 'Faible'}
+                    </span>
+                    <Package size={14} className="text-slate-300" />
+                 </div>
+                 <h4 className="text-sm font-bold text-slate-800">{s.material}</h4>
+                 <div className="flex items-center justify-between">
+                    <p className="text-[10px] text-slate-500">{s.site}</p>
+                    <p className="text-xs font-mono font-bold text-slate-900">{s.quantity} {s.unit}</p>
+                 </div>
               </div>
-              <h4 className="text-sm font-bold text-slate-800">{s.material}</h4>
-              <div className="flex items-center justify-between">
-                <p className="text-[10px] text-slate-500">{s.site}</p>
-                <p className="text-xs font-mono font-bold text-slate-900">{s.quantity}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        <button className="w-full border-2 border-dashed border-slate-200 text-slate-400 p-4 rounded-2xl text-xs font-bold uppercase tracking-widest hover:border-indigo-300 hover:text-indigo-400 transition-colors">
-          Ordonner un Transfert
-        </button>
+            ))}
+         </div>
+         <button 
+          onClick={() => setShowInventory(true)}
+          className="w-full border-2 border-dashed border-slate-200 text-slate-400 p-4 rounded-2xl text-xs font-bold uppercase tracking-widest hover:border-indigo-300 hover:text-indigo-400 transition-colors"
+         >
+            Consulter l'Inventaire Complet
+         </button>
       </section>
+    </motion.div>
+  );
+}
+
+function InventoryView({ onBack }: { onBack: () => void }) {
+  const [selectedSite, setSelectedSite] = useState<string>('Tous');
+  const sites = ['Tous', ...Array.from(new Set(MOCK_STOCK.map(s => s.site)))];
+
+  const filteredStock = selectedSite === 'Tous' 
+    ? MOCK_STOCK 
+    : MOCK_STOCK.filter(s => s.site === selectedSite);
+
+  return (
+    <motion.div 
+      initial={{ x: 300 }}
+      animate={{ x: 0 }}
+      exit={{ x: 300 }}
+      className="flex flex-col min-h-full bg-slate-50"
+    >
+      <header className="p-5 bg-white border-b border-slate-100 sticky top-0 z-40">
+        <button onClick={onBack} className="text-indigo-600 text-sm font-bold flex items-center gap-1 mb-4">
+          <ChevronRight size={18} className="rotate-180" /> Pilotage
+        </button>
+        <h1 className="text-2xl font-bold text-slate-900">Inventaire Global</h1>
+        <p className="text-slate-500 text-xs">Suivi en temps réel par article et chantier</p>
+      </header>
+
+      {/* Site Filter Tabs */}
+      <div className="flex gap-2 p-4 overflow-x-auto scrollbar-hide bg-white shadow-sm border-b border-slate-100">
+        {sites.map(site => (
+          <button 
+            key={site}
+            onClick={() => setSelectedSite(site)}
+            className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+              selectedSite === site 
+                ? 'bg-slate-900 text-white' 
+                : 'bg-slate-100 text-slate-500'
+            }`}
+          >
+            {site}
+          </button>
+        ))}
+      </div>
+
+      <div className="p-4 space-y-4">
+        {/* Inventory Table/List */}
+        <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
+          <div className="grid grid-cols-[1fr_80px_80px] p-4 bg-slate-50/50 border-b border-slate-100 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            <span>Article / Chantier</span>
+            <span className="text-right">Stock</span>
+            <span className="text-right">Statut</span>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {filteredStock.map(item => (
+              <div key={item.id} className="grid grid-cols-[1fr_80px_80px] p-4 items-center">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-bold text-slate-800">{item.material}</p>
+                  <p className="text-[10px] text-slate-400 font-medium uppercase">{item.site} • {item.category}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-mono font-bold text-slate-900">{item.quantity}</p>
+                  <p className="text-[9px] text-slate-400 uppercase">{item.unit}</p>
+                </div>
+                <div className="flex justify-end">
+                   <div className={`w-2 h-2 rounded-full ${
+                     item.status === 'critical' ? 'bg-rose-500 shadow-rose-200 shadow-[0_0_8px]' :
+                     item.status === 'low' ? 'bg-amber-500 shadow-amber-200 shadow-[0_0_8px]' :
+                     'bg-emerald-500'
+                   }`} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Transfer Button */}
+        <button className="w-full bg-indigo-600 text-white p-4 rounded-2xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-indigo-100 active:scale-95 transition-transform flex items-center justify-center gap-2">
+          <Package size={16} />
+          Ordonner un transfert
+        </button>
+      </div>
+
+      <div className="p-8 text-center text-[10px] text-slate-400 italic">
+        Dernière mise à jour: Aujourd'hui à 15:30
+      </div>
     </motion.div>
   );
 }
 
 function ProfilePage() {
   return (
-    <motion.div
+    <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -462,8 +574,8 @@ function ProfilePage() {
       <header className="flex flex-col items-center text-center space-y-4 pt-8">
         <div className="relative">
           <div className="w-24 h-24 rounded-full border-4 border-white shadow-xl overflow-hidden bg-slate-200">
-            <img
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Ezeckiel&backgroundColor=b6e3f4"
+            <img 
+              src="https://api.dicebear.com/7.x/avataaars/svg?seed=Ezeckiel&backgroundColor=b6e3f4" 
               alt="Avatar"
               className="w-full h-full object-cover"
             />
@@ -497,9 +609,9 @@ function ProfilePage() {
       <section className="space-y-3">
         <h3 className="font-bold text-slate-900 px-1">Paramètres</h3>
         <div className="bg-white rounded-3xl border border-slate-100 divide-y divide-slate-100 overflow-hidden shadow-sm">
-          <SettingRow icon={<TrendingDown size={18} />} label="Seuils d'Alerte de Rentabilité" value="80% budget / 50% réal." />
-          <SettingRow icon={<Bell size={18} />} label="Fréquence des Notifications" value="Immédiat" />
-          <SettingRow icon={<LayoutDashboard size={18} />} label="Préférences Dashboard" />
+           <SettingRow icon={<TrendingDown size={18} />} label="Seuils d'Alerte de Rentabilité" value="80% budget / 50% réal." />
+           <SettingRow icon={<Bell size={18} />} label="Fréquence des Notifications" value="Immédiat" />
+           <SettingRow icon={<LayoutDashboard size={18} />} label="Préférences Dashboard" />
         </div>
       </section>
 
@@ -530,9 +642,10 @@ function GlobalActivityCard({ activity }: { activity: GlobalActivity }) {
 
   return (
     <div className="flex gap-4 p-4 bg-white rounded-[24px] border border-slate-100 shadow-sm active:bg-slate-50 transition-colors">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${activity.priority === 'high' ? 'bg-rose-50' :
-          activity.priority === 'medium' ? 'bg-indigo-50' : 'bg-slate-50'
-        }`}>
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+        activity.priority === 'high' ? 'bg-rose-50' : 
+        activity.priority === 'medium' ? 'bg-indigo-50' : 'bg-slate-50'
+      }`}>
         {getIcon()}
       </div>
       <div className="flex-1">
@@ -542,10 +655,10 @@ function GlobalActivityCard({ activity }: { activity: GlobalActivity }) {
         </div>
         <p className="text-xs text-slate-500 leading-relaxed mb-2">{activity.description}</p>
         <div className="flex items-center gap-2">
-          <span className="text-[9px] font-bold text-indigo-600 bg-indigo-50/50 px-1.5 py-0.5 rounded uppercase">{activity.user}</span>
-          {activity.priority === 'high' && (
-            <span className="text-[9px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded uppercase">CRITIQUE</span>
-          )}
+           <span className="text-[9px] font-bold text-indigo-600 bg-indigo-50/50 px-1.5 py-0.5 rounded uppercase">{activity.user}</span>
+           {activity.priority === 'high' && (
+             <span className="text-[9px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded uppercase">CRITIQUE</span>
+           )}
         </div>
       </div>
     </div>
@@ -554,15 +667,15 @@ function GlobalActivityCard({ activity }: { activity: GlobalActivity }) {
 
 // --- HELPER COMPONENTS ---
 
-function NavButton({ active, onClick, icon, label, badge }: {
-  active: boolean,
-  onClick: () => void,
-  icon: React.ReactNode,
+function NavButton({ active, onClick, icon, label, badge }: { 
+  active: boolean, 
+  onClick: () => void, 
+  icon: React.ReactNode, 
   label: string,
   badge?: number
 }) {
   return (
-    <button
+    <button 
       onClick={onClick}
       className={`relative flex flex-col items-center justify-center p-2 transition-all ${active ? 'text-indigo-600' : 'text-slate-400'}`}
     >
@@ -578,7 +691,7 @@ function NavButton({ active, onClick, icon, label, badge }: {
         </span>
       )}
       {active && (
-        <motion.div
+        <motion.div 
           layoutId="nav-pill"
           className="absolute -top-1 w-1 h-1 bg-indigo-600 rounded-full shadow-lg shadow-indigo-200"
         />
@@ -589,7 +702,7 @@ function NavButton({ active, onClick, icon, label, badge }: {
 
 function PaymentCard({ item, onClick }: { item: PaymentRequest, onClick: () => void }) {
   return (
-    <motion.div
+    <motion.div 
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className="bg-white p-5 rounded-[28px] border border-slate-100 shadow-sm flex items-center justify-between cursor-pointer active:bg-slate-50 transition-colors"

@@ -52,8 +52,16 @@ export enum Page {
 }
 
 export interface StockInfo {
+  id: string;
   material: string;
+  category: string;
+  quantity: number;
+  unit: string;
   site: string;
-  quantity: string;
-  status: 'critical' | 'normal';
+  status: 'critical' | 'normal' | 'low';
+}
+
+export interface SiteStock {
+  siteName: string;
+  items: StockInfo[];
 }
