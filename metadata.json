@@ -1,0 +1,6 @@
+{
+  "name": "BTP 360 - Console DG",
+  "description": "Application de pilotage financier et supervision pour le Directeur Général de BTP 360. Audit, approbation de paiements et alertes de rentabilité.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
