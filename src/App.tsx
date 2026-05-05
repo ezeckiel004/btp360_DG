@@ -89,15 +89,16 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex justify-center">
       {/* Mobile Frame Container */}
-      <div className="w-full max-w-md bg-white min-h-screen shadow-2xl relative flex flex-col overflow-hidden border-x border-slate-200">
+      <div className="w-full max-w-md bg-white h-screen shadow-2xl relative flex flex-col overflow-hidden border-x border-slate-200">
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto pb-24">
+        <main className="flex-1 overflow-y-auto">
           <AnimatePresence mode="wait">
             {currentPage === Page.Dashboard && (
               <DashboardPage
                 pendingCount={pendingPaymentsCount}
                 onGoToApprovals={() => setCurrentPage(Page.Approvals)}
+                onGoToStock={() => setCurrentPage(Page.Stock)}
               />
             )}
             {currentPage === Page.Approvals && (
@@ -106,36 +107,45 @@ export default function App() {
                 onApprove={approvePayment}
               />
             )}
-            {currentPage === Page.Reports && <ReportsPage />}
+            {currentPage === Page.Stock && <InventoryView onBack={() => setCurrentPage(Page.Dashboard)} isStandalone={true} />}
+            {currentPage === Page.Reports && <ReportsPage onGoToInventory={() => setCurrentPage(Page.Stock)} />}
             {currentPage === Page.Profile && <ProfilePage />}
           </AnimatePresence>
+          {/* Spacer for bottom padding inside scroll area if needed, though flex container handles it */}
+          <div className="h-8" />
         </main>
 
         {/* Bottom Navigation Bar */}
-        <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md h-20 bg-white/80 backdrop-blur-md border-t border-slate-100 flex items-center justify-around px-4 z-50">
+        <nav className="h-20 bg-white/90 backdrop-blur-md border-t border-slate-100 flex items-center justify-around px-2 z-50 shrink-0">
           <NavButton
             active={currentPage === Page.Dashboard}
             onClick={() => setCurrentPage(Page.Dashboard)}
-            icon={<LayoutDashboard size={24} />}
+            icon={<LayoutDashboard size={22} />}
             label="Accueil"
           />
           <NavButton
             active={currentPage === Page.Approvals}
             onClick={() => setCurrentPage(Page.Approvals)}
-            icon={<CheckCircle2 size={24} />}
-            label="Validation"
+            icon={<CheckCircle2 size={22} />}
+            label="Approbs"
             badge={pendingPaymentsCount > 0 ? pendingPaymentsCount : undefined}
+          />
+          <NavButton
+            active={currentPage === Page.Stock}
+            onClick={() => setCurrentPage(Page.Stock)}
+            icon={<Package size={22} />}
+            label="Stocks"
           />
           <NavButton
             active={currentPage === Page.Reports}
             onClick={() => setCurrentPage(Page.Reports)}
-            icon={<FileText size={24} />}
-            label="Rapports"
+            icon={<FileText size={22} />}
+            label="Docs"
           />
           <NavButton
             active={currentPage === Page.Profile}
             onClick={() => setCurrentPage(Page.Profile)}
-            icon={<User size={24} />}
+            icon={<User size={22} />}
             label="Compte"
           />
         </nav>
@@ -146,7 +156,16 @@ export default function App() {
 
 // --- SUB-PAGES ---
 
-function DashboardPage({ pendingCount, onGoToApprovals }: { pendingCount: number, onGoToApprovals: () => void }) {
+function DashboardPage({
+  pendingCount,
+  onGoToApprovals,
+  onGoToStock
+}: {
+  pendingCount: number,
+  onGoToApprovals: () => void,
+  onGoToStock: () => void
+}) {
+  const criticalStockCount = MOCK_STOCK.filter(s => s.status === 'critical').length;
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -218,7 +237,7 @@ function DashboardPage({ pendingCount, onGoToApprovals }: { pendingCount: number
                   <p className="text-[10px] text-slate-400 uppercase font-bold tracking-tight">{project.location}</p>
                 </div>
                 <div className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase ${project.status === 'ahead' ? 'bg-emerald-50 text-emerald-600' :
-                    project.status === 'behind' ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-500'
+                  project.status === 'behind' ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-500'
                   }`}>
                   {project.status === 'ahead' ? '+ Avance' : project.status === 'behind' ? '- Retard' : 'Normal'}
                 </div>
@@ -234,7 +253,7 @@ function DashboardPage({ pendingCount, onGoToApprovals }: { pendingCount: number
                     initial={{ width: 0 }}
                     animate={{ width: `${project.progress}%` }}
                     className={`h-full rounded-full ${project.budgetStatus === 'alert' ? 'bg-rose-500' :
-                        project.budgetStatus === 'warning' ? 'bg-amber-500' : 'bg-emerald-500'
+                      project.budgetStatus === 'warning' ? 'bg-amber-500' : 'bg-emerald-500'
                       }`}
                   />
                 </div>
@@ -245,15 +264,34 @@ function DashboardPage({ pendingCount, onGoToApprovals }: { pendingCount: number
       </section>
 
       {/* Critical Alerts Bar */}
-      <div className="bg-rose-50 border border-rose-100 p-4 rounded-3xl flex items-center gap-4">
-        <div className="w-10 h-10 bg-rose-500 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-rose-200">
-          <TrendingDown size={20} />
+      <div className="space-y-3">
+        <div className="bg-rose-50 border border-rose-100 p-4 rounded-3xl flex items-center gap-4">
+          <div className="w-10 h-10 bg-rose-500 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-rose-200">
+            <TrendingDown size={20} />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-rose-900 text-xs uppercase tracking-wider">Alerte Rentabilité</h3>
+            <p className="text-rose-700 text-[10px] leading-tight">Site A: Budget 80% / Travaux 55%</p>
+          </div>
+          <AlertTriangle size={18} className="text-rose-500" />
         </div>
-        <div className="flex-1">
-          <h3 className="font-bold text-rose-900 text-xs uppercase tracking-wider">Alerte Rentabilité</h3>
-          <p className="text-rose-700 text-[10px] leading-tight">Site A: Budget 80% / Travaux 55%</p>
-        </div>
-        <AlertTriangle size={18} className="text-rose-500" />
+
+        {criticalStockCount > 0 && (
+          <motion.div
+            whileTap={{ scale: 0.98 }}
+            onClick={onGoToStock}
+            className="bg-amber-50 border border-amber-100 p-4 rounded-3xl flex items-center gap-4 cursor-pointer"
+          >
+            <div className="w-10 h-10 bg-amber-500 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-amber-200">
+              <Package size={20} />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-amber-900 text-xs uppercase tracking-wider">Stock Critique</h3>
+              <p className="text-amber-700 text-[10px] leading-tight">{criticalStockCount} articles en rupture sur 2 chantiers</p>
+            </div>
+            <ArrowRight size={18} className="text-amber-500" />
+          </motion.div>
+        )}
       </div>
 
       {/* Activity Feed */}
@@ -369,7 +407,7 @@ function ApprovalsPage({ payments, onApprove }: { payments: PaymentRequest[], on
   );
 }
 
-function ReportsPage() {
+function ReportsPage({ onGoToInventory }: { onGoToInventory: () => void }) {
   const [showInventory, setShowInventory] = useState(false);
 
   if (showInventory) {
@@ -440,7 +478,7 @@ function ReportsPage() {
         <div className="flex justify-between items-center px-1">
           <h3 className="font-bold text-slate-900">Aperçu des Stocks</h3>
           <button
-            onClick={() => setShowInventory(true)}
+            onClick={onGoToInventory}
             className="text-indigo-600 text-[10px] font-bold uppercase tracking-widest"
           >
             Voir Tout
@@ -465,7 +503,7 @@ function ReportsPage() {
           ))}
         </div>
         <button
-          onClick={() => setShowInventory(true)}
+          onClick={onGoToInventory}
           className="w-full border-2 border-dashed border-slate-200 text-slate-400 p-4 rounded-2xl text-xs font-bold uppercase tracking-widest hover:border-indigo-300 hover:text-indigo-400 transition-colors"
         >
           Consulter l'Inventaire Complet
@@ -475,7 +513,7 @@ function ReportsPage() {
   );
 }
 
-function InventoryView({ onBack }: { onBack: () => void }) {
+function InventoryView({ onBack, isStandalone }: { onBack: () => void, isStandalone?: boolean }) {
   const [selectedSite, setSelectedSite] = useState<string>('Tous');
   const sites = ['Tous', ...Array.from(new Set(MOCK_STOCK.map(s => s.site)))];
 
@@ -485,17 +523,21 @@ function InventoryView({ onBack }: { onBack: () => void }) {
 
   return (
     <motion.div
-      initial={{ x: 300 }}
-      animate={{ x: 0 }}
-      exit={{ x: 300 }}
+      initial={{ x: isStandalone ? 10 : 300, opacity: isStandalone ? 0 : 1 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: isStandalone ? -10 : 300, opacity: isStandalone ? 0 : 1 }}
       className="flex flex-col min-h-full bg-slate-50"
     >
       <header className="p-5 bg-white border-b border-slate-100 sticky top-0 z-40">
-        <button onClick={onBack} className="text-indigo-600 text-sm font-bold flex items-center gap-1 mb-4">
-          <ChevronRight size={18} className="rotate-180" /> Pilotage
-        </button>
-        <h1 className="text-2xl font-bold text-slate-900">Inventaire Global</h1>
-        <p className="text-slate-500 text-xs">Suivi en temps réel par article et chantier</p>
+        {!isStandalone && (
+          <button onClick={onBack} className="text-indigo-600 text-sm font-bold flex items-center gap-1 mb-4">
+            <ChevronRight size={18} className="rotate-180" /> Pilotage
+          </button>
+        )}
+        <div className={isStandalone ? "pt-4" : ""}>
+          <h1 className="text-2xl font-bold text-slate-900">Inventaire Global</h1>
+          <p className="text-slate-500 text-xs">Suivi en temps réel par article et chantier</p>
+        </div>
       </header>
 
       {/* Site Filter Tabs */}
@@ -505,8 +547,8 @@ function InventoryView({ onBack }: { onBack: () => void }) {
             key={site}
             onClick={() => setSelectedSite(site)}
             className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${selectedSite === site
-                ? 'bg-slate-900 text-white'
-                : 'bg-slate-100 text-slate-500'
+              ? 'bg-slate-900 text-white'
+              : 'bg-slate-100 text-slate-500'
               }`}
           >
             {site}
@@ -535,8 +577,8 @@ function InventoryView({ onBack }: { onBack: () => void }) {
                 </div>
                 <div className="flex justify-end">
                   <div className={`w-2 h-2 rounded-full ${item.status === 'critical' ? 'bg-rose-500 shadow-rose-200 shadow-[0_0_8px]' :
-                      item.status === 'low' ? 'bg-amber-500 shadow-amber-200 shadow-[0_0_8px]' :
-                        'bg-emerald-500'
+                    item.status === 'low' ? 'bg-amber-500 shadow-amber-200 shadow-[0_0_8px]' :
+                      'bg-emerald-500'
                     }`} />
                 </div>
               </div>
@@ -638,7 +680,7 @@ function GlobalActivityCard({ activity }: { activity: GlobalActivity }) {
   return (
     <div className="flex gap-4 p-4 bg-white rounded-[24px] border border-slate-100 shadow-sm active:bg-slate-50 transition-colors">
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${activity.priority === 'high' ? 'bg-rose-50' :
-          activity.priority === 'medium' ? 'bg-indigo-50' : 'bg-slate-50'
+        activity.priority === 'medium' ? 'bg-indigo-50' : 'bg-slate-50'
         }`}>
         {getIcon()}
       </div>
